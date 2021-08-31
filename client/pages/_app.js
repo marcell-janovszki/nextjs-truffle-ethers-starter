@@ -1,21 +1,18 @@
 import "tailwindcss/tailwind.css"
 
-import { useEffect } from "react"
+import Head from "next/head"
 
-import { ethers } from "ethers"
-import SimpleMessageArtifact from "../contracts/SimpleMessage.json"
-
-const CONTRACT_ADDRESS = SimpleMessageArtifact.networks["5777"].address
+import EthersProvider from "../providers/EthersProvider"
 
 function App({ Component, pageProps }) {
-  let provider
-
-  useEffect(() => {
-    provider = new ethers.providers.JsonRpcProvider("http://localhost:9545")
-    console.log(provider)
-  }, [])
-
-  return <Component {...pageProps} />
+  return (
+    <>
+    <Head><title>SimpleMessage.sol</title></Head>
+    <EthersProvider>
+      <Component {...pageProps} />
+    </EthersProvider>
+    </>
+  )
 }
 
 export default App
