@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, memo, useContext, useEffect, useState } from "react"
 
 import { ethers } from "ethers"
 
@@ -10,31 +10,41 @@ const CONTRACT_ADDRESS = SimpleMessageArtifact.networks["5777"].address
 const ABI = SimpleMessageArtifact.abi
 
 const EthersProvider = (props) => {
-  let provider
-  let readOnlyContract
-
   const [initialized, setInitialized] = useState(false)
-  const [message, setMessage] = useState()
-
-  const fetchMessage = async (contract) => {
-    contract
-      .message()
-      .then((obj) => obj.toString())
-      .then((msg) => setMessage(msg))
-  }
+  const [provider, setProvider] = useState()
+  const [contracts, setContracts] = useState()
 
   useEffect(() => {
-    provider = new ethers.providers.JsonRpcProvider("http://localhost:9545")
-    readOnlyContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider)
-    fetchMessage(readOnlyContract)
+    const _provider = new ethers.providers.JsonRpcProvider(
+      "http://localhost:9545"
+    )
+    setProvider(_provider)
+
+    const SimpleMessage = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      ABI,
+      _provider.getSigner()
+    )
+
+    setContracts({
+      SimpleMessage: SimpleMessage,
+    })
+
     setInitialized(true)
   }, [])
 
-  return <EthersContext.Provider value={message} {...props} />
+  const variables = { provider, contracts }
+  const functions = {}
+
+  const value = { ...variables, ...functions }
+
+  return initialized ? (
+    <EthersContext.Provider value={value} {...props} />
+  ) : null
 }
 
 export const useEthers = () => {
   return useContext(EthersContext)
 }
 
-export default EthersProvider
+export default memo(EthersProvider)

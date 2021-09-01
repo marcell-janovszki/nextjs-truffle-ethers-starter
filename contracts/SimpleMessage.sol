@@ -2,12 +2,12 @@
 pragma solidity ^0.8.7;
 
 contract SimpleMessage {
-    event messageChange(string _message);
+    event messageUpdate(string _message);
 
-    string public message = "hey";
+    string public message = "initial message.";
 
-    function setMessage(string memory _message) public {
+    function updateMessage(string memory _message) public {
         message = _message;
-        emit messageChange(_message);
+        emit messageUpdate(_message);
     }
 }
