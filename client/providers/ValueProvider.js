@@ -4,7 +4,12 @@ const ValueContext = createContext()
 
 const ValueProvider = (props) => {
   const [initialized, setInitialized] = useState(false)
-  const [values, setProvider] = useState([])
+  const [values, setValues] = useState([])
+
+  function addValue(name) {
+    setValues([...values, { name: name }])
+    console.log("LOADED CONTRACT: ", contract)
+  }
 
   useEffect(() => {
     setInitialized(true)

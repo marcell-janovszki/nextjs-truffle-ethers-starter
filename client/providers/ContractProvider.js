@@ -1,16 +1,15 @@
-import { createContext, memo, useContext, useEffect, useState } from "react"
-
 import { ethers } from "ethers"
 
-import { useEthereum } from "./EthereumProvider"
+import { createContext, useContext, useEffect, useState } from "react"
 
 import SimpleMessageArtifact from "../contracts/SimpleMessage.json"
+
+import { useEthereum } from "./EthereumProvider"
 
 const ContractContext = createContext()
 
 const ContractProvider = (props) => {
   const { provider } = useEthereum()
-  const [initialized, setInitialized] = useState(false)
   const [contracts, setContracts] = useState([])
 
   function addContract(name, contract) {
@@ -20,13 +19,11 @@ const ContractProvider = (props) => {
 
   useEffect(() => {
     const SimpleMessageContract = new ethers.Contract(
-      SimpleMessageArtifact.networks["5777"].address,
+      SimpleMessageArtifact.networks["1337"].address,
       SimpleMessageArtifact.abi,
-      provider.getSigner()
+      provider
     )
     addContract("SimpleMessage", SimpleMessageContract)
-
-    setInitialized(true)
   }, [])
 
   const variables = { contracts }
@@ -34,7 +31,7 @@ const ContractProvider = (props) => {
 
   const value = { ...variables, ...functions }
 
-  return initialized ? <ContractContext.Provider value={value} {...props} /> : null
+  return <ContractContext.Provider value={value} {...props} />
 }
 
 export const useContract = () => {

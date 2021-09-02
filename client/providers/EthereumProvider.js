@@ -1,25 +1,37 @@
-import { createContext, useContext, useEffect, useState } from "react"
-
 import { ethers } from "ethers"
+
+import { createContext, useContext, useEffect, useState } from "react"
 
 const EthereumContext = createContext()
 
 const EthereumProvider = (props) => {
   const [initialized, setInitialized] = useState(false)
-  const [provider, setProvider] = useState("👻")
+  const [provider, setProvider] = useState()
+  const [address, setAddress] = useState([])
 
   function updateProvider(_provider) {
     setProvider(_provider)
     console.log("PROVIDER: ", _provider)
   }
 
+  async function getAddress() {
+    if (provider.connection.url.startsWith("http")) return
+    const accounts = await provider.send("eth_requestAccounts", [])
+    setAddress(accounts[0])
+    console.log({ account: accounts })
+  }
+
   function setInitialProvider() {
     const ethereum = window.ethereum
-    let _provider
-    if (ethereum) _provider = new ethers.providers.Web3Provider(ethereum)
-    else _provider = new ethers.providers.JsonRpcProvider("http://localhost:9545")
-    updateProvider(_provider)
-    return _provider
+    if (!ethereum) {
+      updateProvider(new ethers.providers.JsonRpcProvider("http://localhost:7545"))
+      return
+    } else {
+      ethereum.on("accountsChanged", function (accounts) {
+        setAddress(accounts)
+      })
+      updateProvider(new ethers.providers.Web3Provider(ethereum))
+    }
   }
 
   useEffect(() => {
@@ -27,8 +39,12 @@ const EthereumProvider = (props) => {
     setInitialized(true)
   }, [])
 
-  const variables = { provider }
-  const functions = {}
+  useEffect(() => {
+    if (initialized) getAddress()
+  }, [initialized])
+
+  const variables = { provider, address }
+  const functions = { setAddress, getAddress }
 
   const value = { ...variables, ...functions }
 
@@ -40,3 +56,5 @@ export const useEthereum = () => {
 }
 
 export default EthereumProvider
+
+// WHEN METRAMASK IS SET TO WRONG NETWORK contact.messge() errors out

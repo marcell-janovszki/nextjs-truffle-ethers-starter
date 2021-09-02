@@ -1,11 +1,10 @@
 import { useEthereum } from "../providers/EthereumProvider"
 
 const MetaMaskConnectButton = () => {
-  const { provider } = useEthereum()
+  const { provider, getAddress } = useEthereum()
 
   async function buttonHandler() {
-    const accounts = await provider.send("eth_requestAccounts", []);
-    console.log(accounts);
+    getAddress()
   }
 
   return (

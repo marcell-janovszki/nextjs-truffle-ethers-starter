@@ -10,6 +10,8 @@ const UpdateMessageButton = () => {
     if (_contract.name === "SimpleMessage") contract = _contract.contract
   })
 
+  contract = contract.connect(provider.getSigner())
+
   async function buttonHandler() {
     if (!contract) return console.log("<UpdateMessageButton>", "MISSING CONTRACT: SimpleMessage")
     const txResponce = await contract.updateMessage("updated2")
